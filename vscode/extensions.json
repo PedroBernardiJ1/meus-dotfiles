@@ -1,0 +1,31 @@
+{
+  "recommendations": [
+    // C/C++ (o pack já traz cpptools, themes e cmake-tools)
+    "ms-vscode.cpptools-extension-pack",
+
+    // ROS 2 / robótica
+    "Ranch-Hand-Robotics.rde-pack",
+    "Ranch-Hand-Robotics.rde-ros-2",
+    "Ranch-Hand-Robotics.urdf-editor",
+    "redhat.vscode-xml",
+    "redhat.vscode-yaml",
+
+    // Python e Jupyter (python traz Pylance/debugpy; jupyter traz keymap, renderers, etc.)
+    "ms-python.python",
+    "ms-toolsai.jupyter",
+
+    // Containers
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-containers",
+
+    // Produtividade
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "mechatroner.rainbow-csv",
+    "github.copilot"
+  ],
+  "unwantedRecommendations": [
+    "DotJoshJohnson.xml"
+  ]
+}

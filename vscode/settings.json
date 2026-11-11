@@ -1,0 +1,141 @@
+{
+  // ── Arquivos e performance ──────────────────────────────────────────────
+  // (search.exclude herda o files.exclude, então não precisa repetir)
+  "files.exclude": {
+    "**/build": true,
+    "**/install": true,
+    "**/log": true,
+    "**/__pycache__": true
+  },
+  // Sem isto o VS Code vigia milhares de arquivos gerados pelo colcon
+  "files.watcherExclude": {
+    "**/build/**": true,
+    "**/install/**": true,
+    "**/log/**": true
+  },
+  // Os linters do ROS (ament_lint) reclamam disso
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.associations": {
+    "*.urdf": "xml",
+    "*.xacro": "xml",
+    "*.sdf": "xml",
+    "*.world": "xml",
+    "*.launch": "xml",
+    "*.rviz": "yaml",
+    "*.repos": "yaml"
+  },
+  "task.saveBeforeRun": "always",
+  "terminal.integrated.scrollback": 10000,
+  // Seu robot.dockerfile já define CMD ["/bin/zsh"] + Oh My Zsh; isto garante que qualquer
+  // terminal novo do VS Code (attach ou local) abra em zsh mesmo se o $SHELL do processo divergir.
+  "terminal.integrated.defaultProfile.linux": "zsh",
+
+  // ── C/C++ ───────────────────────────────────────────────────────────────
+  // O caminho do compile_commands fica só no c_cpp_properties.json (uma fonte de verdade)
+  "cmake.configureOnOpen": false,
+  // A raiz (ros_ws/) não tem CMakeLists.txt — cada pacote tem o seu, dentro de src/*/.
+  // Sem isto o CMake Tools mostra um aviso de "CMakeLists.txt não encontrado" toda vez que abre.
+  "cmake.ignoreCMakeListsMissing": true,
+  "C_Cpp.clang_format_fallbackStyle": "Google",
+  // Não precisei mexer em C_Cpp.errorSquiggles nem intelliSenseEngineFallback: o padrão atual já
+  // é o certo (só mostra squiggle vermelho se os #include resolverem, e o fallback tá desligado).
+  // Também não precisei de um "C_Cpp exclude" separado do build/install/log: diferente do Pylance,
+  // o C/C++ Tools já respeita o files.exclude lá em cima.
+  //
+  // Inlay hints = texto fantasma inline, não é autocomplete em si, mas ajuda MUITO a ler código
+  // com auto/shared_ptr/templates (comum no rclcpp) sem precisar de autocomplete pra descobrir o tipo.
+  "C_Cpp.inlayHints.parameterNames.enabled": true,
+  "C_Cpp.inlayHints.parameterNames.suppressWhenArgumentContainsName": true,
+  "C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
+  "C_Cpp.inlayHints.referenceOperator.enabled": true,
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.rulers": [100]
+  },
+
+  // ── Python ──────────────────────────────────────────────────────────────
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  // "basic" liga checagem de tipos de verdade (o padrão do Pylance é "off"); "strict" seria
+  // barulhento demais aqui, porque muita coisa gerada pelo ROS (mensagens, rclpy) não tem
+  // stubs de tipo completos.
+  "python.analysis.typeCheckingMode": "basic",
+  // Padrão do Pylance só analisa arquivo aberto; "workspace" analisa tudo. Só vale a pena
+  // combinado com o exclude abaixo, senão ele tenta vasculhar o que o colcon gera em build/install.
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.exclude": [
+    "**/build",
+    "**/install",
+    "**/log"
+  ],
+  // A extensão RDE (Ranch-Hand-Robotics) já escaneia seus pacotes sozinha e mantém essa lista —
+  // só que ela escreve em "python.autoComplete.extraPaths" (nome antigo, de antes do Pylance),
+  // que o Pylance NUNCA lê. Essa lista abaixo é um espelho manual do que ela já achou, na chave
+  // certa. Quando criar um pacote/interface novo e o autocomplete não aparecer: olhe a lista
+  // "python.autoComplete.extraPaths" mais abaixo (a extensão já deve ter achado o caminho certo)
+  // e copie a linha "install/<pacote>/lib/python3.12/site-packages" correspondente pra cá também.
+  "python.analysis.extraPaths": [
+    "/opt/ros/jazzy/lib/python3.12/site-packages",
+    "${workspaceFolder}/src",
+    "${workspaceFolder}/install/tutoria_node_2/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria4_bringup/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria4_node_1/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria4_custom_interfaces/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria3_bringup/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria3_node_2/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/tutoria2_node_2/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/system_monitor/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/system_monitor_interfaces/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/robot_interfaces/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/python_nodes/lib/python3.12/site-packages",
+    "${workspaceFolder}/install/custom_interfaces/lib/python3.12/site-packages",
+    "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
+    "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_msgs_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_math_vendor/lib/python"
+  ],
+  "[python]": {
+    "editor.rulers": [99]
+  },
+
+  // ── XML (URDF, launch, package.xml) ─────────────────────────────────────
+  // Usa o binário nativo do servidor de linguagem: não precisa de Java no container
+  "xml.server.preferBinary": true,
+  "xml.fileAssociations": [
+    {
+      "pattern": "**/package.xml",
+      "systemId": "http://download.ros.org/schema/package_format3.xsd"
+    }
+  ],
+  "ROS2.distro": "jazzy",
+  "python.autoComplete.extraPaths": [
+    "/home/host/ros_ws/build/tutoria_node_2",
+    "/home/host/ros_ws/install/tutoria_node_2/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/tutoria4_bringup",
+    "/home/host/ros_ws/install/tutoria4_bringup/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/tutoria4_node_1",
+    "/home/host/ros_ws/install/tutoria4_node_1/lib/python3.12/site-packages",
+    "/home/host/ros_ws/install/tutoria4_custom_interfaces/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/tutoria3_bringup",
+    "/home/host/ros_ws/install/tutoria3_bringup/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/tutoria3_node_2",
+    "/home/host/ros_ws/install/tutoria3_node_2/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/tutoria2_node_2",
+    "/home/host/ros_ws/install/tutoria2_node_2/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/system_monitor",
+    "/home/host/ros_ws/install/system_monitor/lib/python3.12/site-packages",
+    "/home/host/ros_ws/install/system_monitor_interfaces/lib/python3.12/site-packages",
+    "/home/host/ros_ws/install/robot_interfaces/lib/python3.12/site-packages",
+    "/home/host/ros_ws/build/python_nodes",
+    "/home/host/ros_ws/install/python_nodes/lib/python3.12/site-packages",
+    "/home/host/ros_ws/install/custom_interfaces/lib/python3.12/site-packages",
+    "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
+    "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_msgs_vendor/lib/python",
+    "/opt/ros/jazzy/opt/gz_math_vendor/lib/python",
+    "/opt/ros/jazzy/lib/python3.12/site-packages"
+  ]
+}

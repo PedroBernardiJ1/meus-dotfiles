@@ -1,0 +1,131 @@
+{
+  // Todas as tasks chamam .vscode/ros.sh via bash. Assim não importa se o seu shell é zsh:
+  // tasks NÃO leem ~/.zshrc, então o ros.sh faz o source do ROS por conta própria.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ROS: build (Debug)",
+      "detail": "colcon build --symlink-install (Debug) + atualiza .vscode/compile_commands.json",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "build", "Debug"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS: build (Release)",
+      "detail": "Mesmo build, otimizado (sem símbolos de debug)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "build", "Release"],
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS: build package (Debug)",
+      "detail": "Compila só um pacote (--packages-select): bem mais rápido no dia a dia",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "${workspaceFolder}/.vscode/ros.sh", "build", "Debug",
+        "--packages-select", "${input:pkgName}"
+      ],
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS: merge compile_commands",
+      "detail": "Junta build/*/compile_commands.json em .vscode/compile_commands.json",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "merge"],
+      "problemMatcher": []
+    },
+    {
+      // Se for a 1ª vez no container, ela mesma roda "rosdep init/update" antes (veja ros.sh)
+      "label": "ROS: rosdep install",
+      "detail": "Instala as dependências declaradas nos package.xml de src/",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "rosdep"],
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS: test (all)",
+      "detail": "colcon test + test-result --verbose",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "test"],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS: test package",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "${workspaceFolder}/.vscode/ros.sh", "test",
+        "--packages-select", "${input:pkgName}"
+      ],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "ROS: run node",
+      "detail": "ros2 run <pacote> <executável>",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "${workspaceFolder}/.vscode/ros.sh", "run",
+        "${input:pkgName}", "${input:execName}"
+      ],
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS: launch",
+      "detail": "ros2 launch <pacote> <arquivo>",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "${workspaceFolder}/.vscode/ros.sh", "launch",
+        "${input:pkgName}", "${input:launchFile}"
+      ],
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS: clean",
+      "detail": "Apaga build/ install/ log/ (pede confirmação no terminal)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/.vscode/ros.sh", "clean"],
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pkgName",
+      "type": "promptString",
+      "description": "Nome do pacote ROS 2",
+      "default": "cylinder_volume"
+    },
+    {
+      "id": "execName",
+      "type": "promptString",
+      "description": "Nome do executável",
+      "default": "cylinder_volume"
+    },
+    {
+      "id": "launchFile",
+      "type": "promptString",
+      "description": "Arquivo de launch (ex: bringup.launch.py)"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ROS 2: Debug node (C++)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/install/${input:pkgName}/lib/${input:pkgName}/${input:execName}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      // Wrapper que faz o source do ROS antes de abrir o gdb (precisa de chmod +x).
+      // Depende de 'gdb' estar na imagem (Etapa 2 do robot.dockerfile). Se faltar, o wrapper
+      // avisa com uma mensagem clara em vez de um "command not found" cru.
+      "miDebuggerPath": "${workspaceFolder}/.vscode/gdb-ros.sh",
+      "preLaunchTask": "ROS: build (Debug)",
+      "setupCommands": [
+        {
+          "description": "Pretty-printing do gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "ROS 2: Debug node (C++, com params)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/install/${input:pkgName}/lib/${input:pkgName}/${input:execName}",
+      // Ajuste conforme o seu nó: parâmetros, remap, namespace...
+      "args": [
+        "--ros-args",
+        "--params-file", "${workspaceFolder}/src/${input:pkgName}/config/params.yaml",
+        "-p", "use_sim_time:=false"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "${workspaceFolder}/.vscode/gdb-ros.sh",
+      "preLaunchTask": "ROS: build (Debug)",
+      "setupCommands": [
+        {
+          "description": "Pretty-printing do gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      // Para nós iniciados por `ros2 launch`. Em Docker exige --cap-add=SYS_PTRACE (já no devcontainer).
+      "name": "ROS 2: Attach to process (C++)",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "${workspaceFolder}/install/${input:pkgName}/lib/${input:pkgName}/${input:execName}",
+      "processId": "${command:pickProcess}",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${workspaceFolder}/.vscode/gdb-ros.sh",
+      "setupCommands": [
+        {
+          "description": "Pretty-printing do gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      // Nós Python (ament_python, layout src/<pkg>/<pkg>/). Roda no terminal integrado, então herda
+      // o ambiente do seu zsh (~/.zshrc com o ros.zsh). O PYTHONPATH extra cobre o pacote em src/.
+      "name": "ROS 2: Debug node (Python)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/install/${input:pkgName}/lib/${input:pkgName}/${input:execName}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src/${input:pkgName}:${env:PYTHONPATH}"
+      },
+      "preLaunchTask": "ROS: build (Debug)"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pkgName",
+      "type": "promptString",
+      "description": "Nome do pacote ROS 2",
+      "default": "cylinder_volume"
+    },
+    {
+      "id": "execName",
+      "type": "promptString",
+      "description": "Nome do executável",
+      "default": "cylinder_volume"
+    }
+  ]
+}

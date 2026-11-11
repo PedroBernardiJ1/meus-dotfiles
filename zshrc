@@ -141,16 +141,35 @@ autoload -U bashcompinit
 bashcompinit
 
 # Fontes do ROS e do Workspace
-source /opt/ros/jazzy/setup.zsh
-source /home/host/ros_ws/install/setup.zsh
+[[ -f /opt/ros/jazzy/setup.zsh ]] && source /opt/ros/jazzy/setup.zsh
+[[ -f "$HOME/ros_ws/install/setup.zsh" ]] && source "$HOME/ros_ws/install/setup.zsh"
 
 # Autocomplete inteligente do Colcon
-source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
+[[ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh ]] && source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
 
 # Registo do Autocomplete (Atualizado para Ubuntu 24.04 / ROS 2 Jazzy)
-eval "$(register-python-argcomplete ros2)"
-eval "$(register-python-argcomplete colcon)"
-eval "$(register-python-argcomplete rosdep)"
+command -v register-python-argcomplete >/dev/null 2>&1 && {
+  eval "$(register-python-argcomplete ros2)"
+  eval "$(register-python-argcomplete colcon)"
+  eval "$(register-python-argcomplete rosdep)"
+}
 
-# Aliases curtos pro .vscode/ros.sh (rb, rt, rdep, rclean, rbp...)
-source /home/host/ros_ws/.vscode/ros.zsh
+# Carrega os aliases curtos (rb, rt, rdep, rclean, rbp...) direto dos dotfiles
+[[ -f "$HOME/dotfiles/vscode/ros.zsh" ]] && source "$HOME/dotfiles/vscode/ros.zsh"
+
+# Comando para injetar seu .vscode em qualquer workspace novo sem sujar o Git
+inject_vscode() {
+  local target_dir="${1:-$PWD}"
+  ln -sfn "$HOME/dotfiles/vscode" "$target_dir/.vscode"
+  
+  # Procura a pasta .git do projeto e esconde o .vscode no exclude local
+  local git_dir
+  git_dir=$(git -C "$target_dir" rev-parse --git-dir 2>/dev/null)
+  if [[ -n "$git_dir" ]]; then
+    grep -qxF ".vscode/" "$git_dir/info/exclude" 2>/dev/null || echo ".vscode/" >> "$git_dir/info/exclude"
+    grep -qxF "ros_ws/.vscode/" "$git_dir/info/exclude" 2>/dev/null || echo "ros_ws/.vscode/" >> "$git_dir/info/exclude"
+    echo ".vscode injetado em $target_dir e ocultado do Git com sucesso!"
+  else
+    echo ".vscode injetado em $target_dir (nenhum repositório Git detectado)."
+  fi
+}

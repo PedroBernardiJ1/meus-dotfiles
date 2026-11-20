@@ -74,7 +74,8 @@ rosdep_install() {
   # "already exists" e o '|| true' ignora; se você esqueceu, ele resolve sozinho, sem travar.
   if [ ! -d "$HOME/.ros/rosdep/sources.cache" ]; then
     echo "[rosdep] cache não encontrado, inicializando (só acontece uma vez por container)..."
-    sudo rosdep init 2>/dev/null || true
+    # como root (container sem sudo) roda direto; senão usa sudo
+    if [ "$(id -u)" -eq 0 ]; then rosdep init 2>/dev/null || true; else sudo rosdep init 2>/dev/null || true; fi
     rosdep update --rosdistro "$ROS_DISTRO"
   fi
   rosdep install --from-paths src --ignore-src -r -y --rosdistro "$ROS_DISTRO"

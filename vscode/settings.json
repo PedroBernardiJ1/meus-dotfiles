@@ -69,27 +69,15 @@
     "**/install",
     "**/log"
   ],
-  // A extensão RDE (Ranch-Hand-Robotics) já escaneia seus pacotes sozinha e mantém essa lista —
-  // só que ela escreve em "python.autoComplete.extraPaths" (nome antigo, de antes do Pylance),
-  // que o Pylance NUNCA lê. Essa lista abaixo é um espelho manual do que ela já achou, na chave
-  // certa. Quando criar um pacote/interface novo e o autocomplete não aparecer: olhe a lista
-  // "python.autoComplete.extraPaths" mais abaixo (a extensão já deve ter achado o caminho certo)
-  // e copie a linha "install/<pacote>/lib/python3.12/site-packages" correspondente pra cá também.
+  // Modelo genérico: só o ROS base, o seu src/ e os pacotes "vendor" do Gazebo.
+  // PACOTES/INTERFACES CUSTOMIZADAS não entram aqui — dependem do projeto. Quando criar uma
+  // interface (.msg/.srv) e o Pylance não achar o import, acrescente uma linha neste formato:
+  //   "${workspaceFolder}/install/<nome_do_pacote>/lib/python3.12/site-packages"
+  // (a extensão RDE também acha esses caminhos sozinha, mas escreve em "python.autoComplete.extraPaths",
+  //  nome antigo que o Pylance não lê — copie de lá para cá.)
   "python.analysis.extraPaths": [
     "/opt/ros/jazzy/lib/python3.12/site-packages",
     "${workspaceFolder}/src",
-    "${workspaceFolder}/install/tutoria_node_2/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria4_bringup/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria4_node_1/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria4_custom_interfaces/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria3_bringup/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria3_node_2/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/tutoria2_node_2/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/system_monitor/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/system_monitor_interfaces/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/robot_interfaces/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/python_nodes/lib/python3.12/site-packages",
-    "${workspaceFolder}/install/custom_interfaces/lib/python3.12/site-packages",
     "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
     "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
     "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
@@ -108,34 +96,5 @@
       "pattern": "**/package.xml",
       "systemId": "http://download.ros.org/schema/package_format3.xsd"
     }
-  ],
-  "ROS2.distro": "jazzy",
-  "python.autoComplete.extraPaths": [
-    "/home/host/ros_ws/build/tutoria_node_2",
-    "/home/host/ros_ws/install/tutoria_node_2/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/tutoria4_bringup",
-    "/home/host/ros_ws/install/tutoria4_bringup/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/tutoria4_node_1",
-    "/home/host/ros_ws/install/tutoria4_node_1/lib/python3.12/site-packages",
-    "/home/host/ros_ws/install/tutoria4_custom_interfaces/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/tutoria3_bringup",
-    "/home/host/ros_ws/install/tutoria3_bringup/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/tutoria3_node_2",
-    "/home/host/ros_ws/install/tutoria3_node_2/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/tutoria2_node_2",
-    "/home/host/ros_ws/install/tutoria2_node_2/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/system_monitor",
-    "/home/host/ros_ws/install/system_monitor/lib/python3.12/site-packages",
-    "/home/host/ros_ws/install/system_monitor_interfaces/lib/python3.12/site-packages",
-    "/home/host/ros_ws/install/robot_interfaces/lib/python3.12/site-packages",
-    "/home/host/ros_ws/build/python_nodes",
-    "/home/host/ros_ws/install/python_nodes/lib/python3.12/site-packages",
-    "/home/host/ros_ws/install/custom_interfaces/lib/python3.12/site-packages",
-    "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
-    "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
-    "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
-    "/opt/ros/jazzy/opt/gz_msgs_vendor/lib/python",
-    "/opt/ros/jazzy/opt/gz_math_vendor/lib/python",
-    "/opt/ros/jazzy/lib/python3.12/site-packages"
   ]
 }

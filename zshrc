@@ -140,9 +140,15 @@ unsetopt hist_save_by_copy  # Proíbe o Zsh de criar ficheiros temporários (.ne
 autoload -U bashcompinit
 bashcompinit
 
-# Fontes do ROS e do Workspace
-[[ -f /opt/ros/jazzy/setup.zsh ]] && source /opt/ros/jazzy/setup.zsh
-[[ -f "$HOME/ros_ws/install/setup.zsh" ]] && source "$HOME/ros_ws/install/setup.zsh"
+# Onde este repositório de dotfiles mora de verdade. Como ~/.zshrc é um link para este arquivo,
+# o ":A" resolve o link e devolve a pasta real do repositório (qualquer nome/lugar serve).
+typeset -g DOTFILES_DIR="${${(%):-%x}:A:h}"
+# Workspace ROS deste container (os aliases e o .vscode usam isto). Mude aqui se o seu for outro.
+export ROS_WS_DIR="${ROS_WS_DIR:-$HOME/ros_ws}"
+
+# Fontes do ROS e do Workspace (a distro vem do ROS_DISTRO que as imagens oficiais já definem)
+[[ -f /opt/ros/${ROS_DISTRO:-jazzy}/setup.zsh ]] && source /opt/ros/${ROS_DISTRO:-jazzy}/setup.zsh
+[[ -f "$ROS_WS_DIR/install/setup.zsh" ]] && source "$ROS_WS_DIR/install/setup.zsh"
 
 # Autocomplete inteligente do Colcon
 [[ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh ]] && source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh
@@ -154,22 +160,11 @@ command -v register-python-argcomplete >/dev/null 2>&1 && {
   eval "$(register-python-argcomplete rosdep)"
 }
 
-# Carrega os aliases curtos (rb, rt, rdep, rclean, rbp...) direto dos dotfiles
-[[ -f "$HOME/dotfiles/vscode/ros.zsh" ]] && source "$HOME/dotfiles/vscode/ros.zsh"
+# Aliases curtos (build, buildpkg, bringup, ros2 run/launch...) — o arquivo mora neste repositório
+[[ -f "$DOTFILES_DIR/vscode/ros.zsh" ]] && source "$DOTFILES_DIR/vscode/ros.zsh"
 
-# Comando para injetar seu .vscode em qualquer workspace novo sem sujar o Git
+# Copia o modelo de .vscode para um workspace novo (nunca sobrescreve nada que já exista).
+# Uso: inject_vscode [pasta_do_workspace]   (sem argumento: o workspace onde você está; senão $ROS_WS_DIR)
 inject_vscode() {
-  local target_dir="${1:-$PWD}"
-  ln -sfn "$HOME/dotfiles/vscode" "$target_dir/.vscode"
-  
-  # Procura a pasta .git do projeto e esconde o .vscode no exclude local
-  local git_dir
-  git_dir=$(git -C "$target_dir" rev-parse --git-dir 2>/dev/null)
-  if [[ -n "$git_dir" ]]; then
-    grep -qxF ".vscode/" "$git_dir/info/exclude" 2>/dev/null || echo ".vscode/" >> "$git_dir/info/exclude"
-    grep -qxF "ros_ws/.vscode/" "$git_dir/info/exclude" 2>/dev/null || echo "ros_ws/.vscode/" >> "$git_dir/info/exclude"
-    echo ".vscode injetado em $target_dir e ocultado do Git com sucesso!"
-  else
-    echo ".vscode injetado em $target_dir (nenhum repositório Git detectado)."
-  fi
+  bash "$DOTFILES_DIR/inject-vscode.sh" "$@"
 }
